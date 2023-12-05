@@ -1,12 +1,7 @@
 package manske.locadora.manskemathes;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import manske.locadora.manskemathes.controller.LocadoraControler;
-import manske.locadora.manskemathes.model.Filmes;
-import manske.locadora.manskemathes.repository.FilmeRepository; 
 
 @SpringBootApplication
 public class ManskemathesApplication {

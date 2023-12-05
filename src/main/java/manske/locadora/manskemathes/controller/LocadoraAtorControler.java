@@ -12,9 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import manske.locadora.manskemathes.model.Ator;
+import manske.locadora.manskemathes.model.Classe;
 import manske.locadora.manskemathes.repository.AtorRepository;
+import manske.locadora.manskemathes.repository.ClasseRepository;
+import manske.locadora.manskemathes.repository.FilmeRepository;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +27,13 @@ import java.util.Optional;
 
 public class LocadoraAtorControler {
     
+    private final FilmeRepository filmeRepository;
+
     private final AtorRepository atorRepository;
     
-    public LocadoraAtorControler(AtorRepository atorRepository) {
+    public LocadoraAtorControler(AtorRepository atorRepository, FilmeRepository filmeRepository) {
         this.atorRepository = atorRepository;
+        this.filmeRepository = filmeRepository;
     }
 
     @GetMapping
@@ -39,6 +46,10 @@ public class LocadoraAtorControler {
     public Ator criar(@RequestBody Ator ator) {
         return atorRepository.save(ator);
     }
+
+   private boolean validaExcluir(Ator ator) {
+        return filmeRepository.existsByAtor(ator);
+    }
     
     @GetMapping("/{id}")
     public ResponseEntity<Ator> encontrarAtor(@PathVariable Long id) {
@@ -49,7 +60,17 @@ public class LocadoraAtorControler {
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deletar(@PathVariable Long id) {
-        atorRepository.deleteById(id);
+        Optional<Ator> atorEncontrado = atorRepository.findById(id);
+
+        if(atorEncontrado.isPresent()){
+            if (validaExcluir(atorEncontrado.get())){
+                throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Ator tem relação com outra"
+                );
+            } else {
+                atorRepository.deleteById(id);
+            }
+        }
     }
 
     @PutMapping("/{id}")
@@ -60,7 +81,7 @@ public class LocadoraAtorControler {
         if (atorEncontrado.isPresent()) {
             Ator atorExistente = atorEncontrado.get();
             atorExistente.setNome(Ator.getNome());
-            atorExistente.setCpf(Ator.getCpf());
+            //atorExistente.setCpf(Ator.getCpf());
            
             atorRepository.save(atorExistente);
         }

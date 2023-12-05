@@ -6,13 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
-
+import java.util.List;
 
 @Data
 @Entity
@@ -29,6 +32,22 @@ public class Filmes {
     @ManyToOne
     @JoinColumn(name ="idClasse")
     private Classe classe;
+
+    @ManyToOne
+    @JoinColumn(name = "idDiretor")
+    private Diretor diretor;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "filme_ator",
+        joinColumns = @JoinColumn(name = "filmeid"),
+        inverseJoinColumns = @JoinColumn(name = "idAtor")
+    )
+    private List <Ator> ator;
+
+   /*@ManyToOne
+    @JoinColumn(name = "idAtor")
+    private Ator ator;*/
 
     @Column(length = 120, nullable = false)
     private String categoria;

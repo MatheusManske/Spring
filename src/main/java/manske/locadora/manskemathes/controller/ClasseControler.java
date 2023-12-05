@@ -1,12 +1,12 @@
 package manske.locadora.manskemathes.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import manske.locadora.manskemathes.model.Classe;
 import manske.locadora.manskemathes.repository.ClasseRepository;
-import manske.locadora.manskemathes.repository.DiretorRepository;
 import manske.locadora.manskemathes.repository.FilmeRepository;
 
 import java.util.List;
@@ -16,13 +16,11 @@ import java.util.Optional;
 @RequestMapping("/api/nova")
 
 public class ClasseControler {
-   
+
     private final ClasseRepository classeRepository;
 
-    
     private final FilmeRepository filmeRepository;
 
-    
     public ClasseControler(ClasseRepository classeRepository, FilmeRepository filmeRepository) {
         this.classeRepository = classeRepository;
         this.filmeRepository = filmeRepository;
@@ -45,6 +43,7 @@ public class ClasseControler {
         return classeRepository.save(classe);
     }
 
+    
     private boolean validaExcluir(Classe classe) {
         return filmeRepository.existsByClasse(classe);
     }
@@ -54,11 +53,12 @@ public class ClasseControler {
     public void delete(@PathVariable Long id) {
         Optional<Classe> classeEncontrada = classeRepository.findById(id);
 
-        if(classeEncontrada.isPresent()){
-            if (validaExcluir(classeEncontrada.get())){
-                    System.out.println("ola");
-            }
-            else{
+        if (classeEncontrada.isPresent()) {
+            if (validaExcluir(classeEncontrada.get())) {
+               throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Classe tem relação com outra"
+            );
+            } else {
                 classeRepository.deleteById(id);
             }
         }
